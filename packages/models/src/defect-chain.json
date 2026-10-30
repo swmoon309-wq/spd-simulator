@@ -1,0 +1,208 @@
+{
+  "meta": {
+    "id": "defect-chain",
+    "name": "결함 발생·검출·재작업 체인",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 400,
+    "dt": 0.25
+  },
+  "constants": {
+    "job_size": {
+      "value": 500,
+      "unit": "태스크",
+      "label": "작업 규모"
+    },
+    "staff": {
+      "value": 8,
+      "unit": "명",
+      "label": "투입 인원"
+    },
+    "productivity": {
+      "value": 0.5,
+      "unit": "태스크/맨데이",
+      "label": "생산성"
+    },
+    "defect_density": {
+      "value": 1.2,
+      "unit": "오류/태스크",
+      "label": "오류 밀도(태스크당 발생하는 오류)"
+    },
+    "detection_efficiency": {
+      "value": 0.6,
+      "unit": "비율",
+      "label": "검출 효율(책: 대체로 50~90%)"
+    },
+    "rework_delay": {
+      "value": 10,
+      "unit": "일",
+      "label": "검출한 오류를 고치기까지의 평균 시간"
+    },
+    "rework_effort_per_defect": {
+      "value": 0.5,
+      "unit": "맨데이/오류",
+      "label": "오류 하나를 고치는 공수"
+    }
+  },
+  "levels": {
+    "tasks_remaining": {
+      "init": "job_size",
+      "inflows": [],
+      "outflows": [
+        "development_rate"
+      ],
+      "unit": "태스크"
+    },
+    "tasks_developed": {
+      "init": "0",
+      "inflows": [
+        "development_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "cum_generated": {
+      "init": "0",
+      "inflows": [
+        "defect_generation_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "undetected_defects": {
+      "init": "0",
+      "inflows": [
+        "defect_escape_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "detected_defects": {
+      "init": "0",
+      "inflows": [
+        "defect_detection_rate"
+      ],
+      "outflows": [
+        "defect_rework_rate"
+      ],
+      "unit": "오류"
+    },
+    "reworked_defects": {
+      "init": "0",
+      "inflows": [
+        "defect_rework_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "effort_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    }
+  },
+  "rates": {
+    "development_rate": {
+      "expr": "MIN(staff * productivity, tasks_remaining / DT)",
+      "unit": "태스크/일"
+    },
+    "defect_generation_rate": {
+      "expr": "development_rate * defect_density",
+      "unit": "오류/일"
+    },
+    "defect_detection_rate": {
+      "expr": "detection_efficiency * defect_generation_rate",
+      "unit": "오류/일"
+    },
+    "defect_escape_rate": {
+      "expr": "(1 - detection_efficiency) * defect_generation_rate",
+      "unit": "오류/일"
+    },
+    "defect_rework_rate": {
+      "expr": "detected_defects / rework_delay",
+      "unit": "오류/일"
+    },
+    "effort_rate": {
+      "expr": "staff * working + defect_rework_rate * rework_effort_per_defect",
+      "unit": "맨데이/일"
+    },
+    "completion_clock": {
+      "expr": "IF(tasks_remaining > 0, MIN(1, tasks_remaining / (staff * productivity * DT)), 0)",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "working": {
+      "expr": "IF(tasks_remaining > 0, 1, 0)",
+      "unit": "0/1"
+    },
+    "staff_level": {
+      "expr": "staff",
+      "unit": "명"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "tasks_developed",
+    "cum_generated",
+    "undetected_defects",
+    "detected_defects",
+    "reworked_defects",
+    "completion_time"
+  ],
+  "invariants": [
+    {
+      "name": "task_conservation",
+      "label": "남은 일 + 끝난 일 = 작업 규모",
+      "lhs": [
+        {
+          "variable": "tasks_remaining"
+        },
+        {
+          "variable": "tasks_developed"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "job_size"
+        }
+      ],
+      "tolerance": 1e-06
+    },
+    {
+      "name": "defect_conservation",
+      "label": "발생한 오류 = 검출 못 한 오류 + 검출했지만 고치기 전 + 고친 오류",
+      "lhs": [
+        {
+          "variable": "cum_generated"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "undetected_defects"
+        },
+        {
+          "variable": "detected_defects"
+        },
+        {
+          "variable": "reworked_defects"
+        }
+      ],
+      "tolerance": 1e-06
+    }
+  ]
+}

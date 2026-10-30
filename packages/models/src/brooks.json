@@ -1,0 +1,178 @@
+{
+  "meta": {
+    "id": "brooks",
+    "name": "Brooks 법칙",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 400,
+    "dt": 0.25
+  },
+  "constants": {
+    "initial_requirements": {
+      "value": 500,
+      "unit": "FP",
+      "label": "구현할 요구사항 규모"
+    },
+    "initial_experienced": {
+      "value": 20,
+      "unit": "명",
+      "label": "초기 숙련 인원"
+    },
+    "initial_new": {
+      "value": 0,
+      "unit": "명",
+      "label": "초기 신입 인원"
+    },
+    "nominal_productivity": {
+      "value": 0.1,
+      "unit": "FP/맨데이",
+      "label": "공칭 생산성"
+    },
+    "new_productivity_factor": {
+      "value": 0.8,
+      "unit": "배",
+      "label": "신입 생산성 계수"
+    },
+    "experienced_productivity_factor": {
+      "value": 1.2,
+      "unit": "배",
+      "label": "숙련자 생산성 계수"
+    },
+    "comm_overhead_coeff": {
+      "value": 0.0006,
+      "unit": "1/명²",
+      "label": "의사소통 오버헤드 계수 (0.06·n² %)"
+    },
+    "training_overhead": {
+      "value": 0.25,
+      "unit": "FTE/신입",
+      "label": "신입 1명당 훈련에 쓰는 숙련자 비율"
+    },
+    "assimilation_time": {
+      "value": 20,
+      "unit": "일",
+      "label": "신입이 숙련자가 되는 평균 기간"
+    },
+    "extra_people": {
+      "value": 0,
+      "unit": "명",
+      "label": "추가 투입 인원"
+    },
+    "hire_day": {
+      "value": 110,
+      "unit": "일",
+      "label": "추가 투입 시점"
+    }
+  },
+  "levels": {
+    "requirements": {
+      "init": "initial_requirements",
+      "inflows": [],
+      "outflows": [
+        "software_development_rate"
+      ],
+      "unit": "FP"
+    },
+    "developed_software": {
+      "init": "0",
+      "inflows": [
+        "software_development_rate"
+      ],
+      "outflows": [],
+      "unit": "FP"
+    },
+    "new_personnel": {
+      "init": "initial_new",
+      "inflows": [
+        "personnel_allocation_rate"
+      ],
+      "outflows": [
+        "assimilation_rate"
+      ],
+      "unit": "명"
+    },
+    "experienced_personnel": {
+      "init": "initial_experienced",
+      "inflows": [
+        "assimilation_rate"
+      ],
+      "outflows": [],
+      "unit": "명"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    },
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "total_personnel"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    }
+  },
+  "rates": {
+    "software_development_rate": {
+      "expr": "MIN(potential_development_rate, requirements / DT)",
+      "unit": "FP/일"
+    },
+    "personnel_allocation_rate": {
+      "expr": "PULSE(extra_people / DT, hire_day, DT)",
+      "unit": "명/일"
+    },
+    "assimilation_rate": {
+      "expr": "new_personnel / assimilation_time",
+      "unit": "명/일"
+    },
+    "completion_clock": {
+      "expr": "IF(requirements > 0, MIN(1, requirements / (potential_development_rate * DT)), 0)",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "total_personnel": {
+      "expr": "new_personnel + experienced_personnel",
+      "unit": "명"
+    },
+    "communication_overhead": {
+      "expr": "MIN(0.9, comm_overhead_coeff * total_personnel ^ 2)",
+      "unit": "비율"
+    },
+    "experienced_needed_for_training": {
+      "expr": "new_personnel * training_overhead",
+      "unit": "명"
+    },
+    "productive_capacity": {
+      "expr": "new_personnel * new_productivity_factor + MAX(0, experienced_personnel - experienced_needed_for_training) * experienced_productivity_factor",
+      "unit": "명(생산성 환산)"
+    },
+    "potential_development_rate": {
+      "expr": "nominal_productivity * productive_capacity * (1 - communication_overhead)",
+      "unit": "FP/일"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "developed_software",
+    "total_personnel",
+    "software_development_rate",
+    "completion_time"
+  ],
+  "invariants": [
+    {
+      "name": "requirements_conservation",
+      "label": "남은 요구사항 + 개발 완료 규모 = 초기 요구사항",
+      "lhs": [{ "variable": "requirements" }, { "variable": "developed_software" }],
+      "rhs": [{ "variable": "initial_requirements" }],
+      "tolerance": 1e-6
+    }
+  ]
+}

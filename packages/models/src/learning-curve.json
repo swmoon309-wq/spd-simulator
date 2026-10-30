@@ -1,0 +1,138 @@
+{
+  "meta": {
+    "id": "learning-curve",
+    "name": "인력 학습곡선",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 400,
+    "dt": 0.25
+  },
+  "constants": {
+    "job_size": {
+      "value": 400,
+      "unit": "태스크",
+      "label": "작업 규모"
+    },
+    "staff": {
+      "value": 10,
+      "unit": "명",
+      "label": "투입 인원"
+    },
+    "nominal_productivity": {
+      "value": 0.5,
+      "unit": "태스크/맨데이",
+      "label": "공칭 생산성"
+    },
+    "initial_efficiency": {
+      "value": 0.5,
+      "unit": "배",
+      "label": "일을 시작할 때의 생산성 배율"
+    },
+    "peak_efficiency": {
+      "value": 1.2,
+      "unit": "배",
+      "label": "학습을 마쳤을 때의 생산성 배율"
+    }
+  },
+  "levels": {
+    "tasks_remaining": {
+      "init": "job_size",
+      "inflows": [],
+      "outflows": [
+        "development_rate"
+      ],
+      "unit": "태스크"
+    },
+    "tasks_completed": {
+      "init": "0",
+      "inflows": [
+        "development_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "effort_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    }
+  },
+  "rates": {
+    "development_rate": {
+      "expr": "MIN(potential_rate, tasks_remaining / DT)",
+      "unit": "태스크/일"
+    },
+    "effort_rate": {
+      "expr": "IF(tasks_remaining > 0, staff, 0)",
+      "unit": "맨데이/일"
+    },
+    "completion_clock": {
+      "expr": "IF(tasks_remaining > 0, MIN(1, tasks_remaining / (potential_rate * DT)), 0)",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "percentage_complete": {
+      "expr": "tasks_completed / job_size",
+      "unit": "비율"
+    },
+    "learning_curve": {
+      "expr": "initial_efficiency + (peak_efficiency - initial_efficiency) * (3 * percentage_complete ^ 2 - 2 * percentage_complete ^ 3)",
+      "unit": "배"
+    },
+    "productivity": {
+      "expr": "nominal_productivity * learning_curve",
+      "unit": "태스크/맨데이"
+    },
+    "potential_rate": {
+      "expr": "staff * productivity",
+      "unit": "태스크/일"
+    },
+    "staff_level": {
+      "expr": "staff",
+      "unit": "명"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "tasks_completed",
+    "learning_curve",
+    "productivity",
+    "development_rate",
+    "completion_time"
+  ],
+  "invariants": [
+    {
+      "name": "task_conservation",
+      "label": "남은 일 + 끝난 일 = 작업 규모",
+      "lhs": [
+        {
+          "variable": "tasks_remaining"
+        },
+        {
+          "variable": "tasks_completed"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "job_size"
+        }
+      ],
+      "tolerance": 1e-06
+    }
+  ]
+}
