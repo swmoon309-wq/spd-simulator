@@ -1,0 +1,18 @@
+{
+  "name": "spd",
+  "version": "0.1.0",
+  "private": true,
+  "description": "소프트웨어 프로젝트 계획 수립 및 제어 시뮬레이터",
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @spd/desktop",
+    "build": "npm run build -w @spd/desktop",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "check": "npm run typecheck && npm run test"
+  },
+  "engines": { "node": ">=22" },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,9 @@
+node_modules/
+out/
+dist/
+*.log
+.DS_Store
+release/
+
+# 교재(Software Process Dynamics) 장별 PDF는 저작권이 있어 저장소에 올리지 않는다
+docs/ref/
