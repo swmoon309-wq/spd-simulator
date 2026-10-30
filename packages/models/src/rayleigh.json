@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "id": "rayleigh",
+    "name": "Rayleigh 인력 곡선",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 500,
+    "dt": 0.25
+  },
+  "constants": {
+    "estimated_total_effort": {
+      "value": 4000,
+      "unit": "맨데이",
+      "label": "추정 총 공수"
+    },
+    "manpower_buildup": {
+      "value": 0.0001,
+      "unit": "1/일²",
+      "label": "인력 증가 계수"
+    },
+    "effort_per_task": {
+      "value": 10,
+      "unit": "맨데이/태스크",
+      "label": "태스크당 공수(진척 환산)"
+    },
+    "completion_fraction": {
+      "value": 0.99,
+      "unit": "비율",
+      "label": "완료로 보는 누적 공수 비율"
+    }
+  },
+  "levels": {
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "effort_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    }
+  },
+  "rates": {
+    "effort_rate": {
+      "expr": "learning_function * (estimated_total_effort - cum_effort)",
+      "unit": "맨데이/일"
+    },
+    "completion_clock": {
+      "expr": "IF(cum_effort < completion_fraction * estimated_total_effort, 1, 0)",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "learning_function": {
+      "expr": "manpower_buildup * TIME",
+      "unit": "1/일"
+    },
+    "tasks_done": {
+      "expr": "cum_effort / effort_per_task",
+      "unit": "태스크"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "effort_rate",
+    "cum_effort",
+    "learning_function",
+    "completion_time"
+  ]
+}

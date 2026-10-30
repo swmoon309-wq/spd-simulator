@@ -1,0 +1,158 @@
+{
+  "meta": {
+    "id": "production-rework",
+    "name": "생산과 재작업",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 400,
+    "dt": 0.25
+  },
+  "constants": {
+    "job_size": {
+      "value": 400,
+      "unit": "태스크",
+      "label": "작업 규모"
+    },
+    "staff": {
+      "value": 10,
+      "unit": "명",
+      "label": "투입 인원"
+    },
+    "productivity": {
+      "value": 0.5,
+      "unit": "태스크/맨데이",
+      "label": "생산성"
+    },
+    "fraction_correct": {
+      "value": 0.8,
+      "unit": "비율",
+      "label": "처음부터 올바르게 끝내는 비율"
+    },
+    "discovery_delay": {
+      "value": 20,
+      "unit": "일",
+      "label": "재작업 발견 지연"
+    },
+    "completion_tolerance": {
+      "value": 0.5,
+      "unit": "태스크",
+      "label": "완료로 보는 남은 양(재작업은 지수적으로 줄어 0이 되지 않는다)"
+    }
+  },
+  "levels": {
+    "tasks_to_do": {
+      "init": "job_size",
+      "inflows": [
+        "rework_discovery"
+      ],
+      "outflows": [
+        "task_development"
+      ],
+      "unit": "태스크"
+    },
+    "correct_tasks": {
+      "init": "0",
+      "inflows": [
+        "correct_task_development"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "undiscovered_rework": {
+      "init": "0",
+      "inflows": [
+        "incorrect_task_development"
+      ],
+      "outflows": [
+        "rework_discovery"
+      ],
+      "unit": "태스크"
+    },
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "effort_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    }
+  },
+  "rates": {
+    "task_development": {
+      "expr": "MIN(staff * productivity, tasks_to_do / DT)",
+      "unit": "태스크/일"
+    },
+    "correct_task_development": {
+      "expr": "task_development * fraction_correct",
+      "unit": "태스크/일"
+    },
+    "incorrect_task_development": {
+      "expr": "task_development * (1 - fraction_correct)",
+      "unit": "태스크/일"
+    },
+    "rework_discovery": {
+      "expr": "undiscovered_rework / discovery_delay",
+      "unit": "태스크/일"
+    },
+    "effort_rate": {
+      "expr": "staff * (1 - finished)",
+      "unit": "맨데이/일"
+    },
+    "completion_clock": {
+      "expr": "1 - finished",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "finished": {
+      "expr": "IF(job_size - correct_tasks <= completion_tolerance, 1, 0)",
+      "unit": "0/1"
+    },
+    "staff_level": {
+      "expr": "staff",
+      "unit": "명"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "correct_tasks",
+    "tasks_to_do",
+    "undiscovered_rework",
+    "task_development",
+    "completion_time"
+  ],
+  "invariants": [
+    {
+      "name": "task_conservation",
+      "label": "해야 할 일 + 올바르게 끝난 일 + 발견 전 재작업 = 작업 규모",
+      "lhs": [
+        {
+          "variable": "tasks_to_do"
+        },
+        {
+          "variable": "correct_tasks"
+        },
+        {
+          "variable": "undiscovered_rework"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "job_size"
+        }
+      ],
+      "tolerance": 1e-06
+    }
+  ]
+}

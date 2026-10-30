@@ -1,0 +1,1328 @@
+{
+  "meta": {
+    "id": "integrated-project-ai",
+    "name": "통합 프로젝트 + AI 보조 (4섹터 단순판 확장)",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 400,
+    "dt": 0.25
+  },
+  "constants": {
+    "total_tasks": {
+      "value": 400,
+      "unit": "태스크",
+      "label": "작업 규모"
+    },
+    "plan_known_fraction": {
+      "value": 0.67,
+      "unit": "비율",
+      "label": "알려진 태스크 비율"
+    },
+    "planned_duration_days": {
+      "value": 200,
+      "unit": "일",
+      "label": "계획 일정"
+    },
+    "max_tolerable_factor": {
+      "value": 1.5,
+      "unit": "배",
+      "label": "한계 일정 배수"
+    },
+    "max_staff": {
+      "value": 20,
+      "unit": "명",
+      "label": "인원 상한"
+    },
+    "initial_pros": {
+      "value": 4,
+      "unit": "명",
+      "label": "초기 숙련 인원"
+    },
+    "initial_new": {
+      "value": 0,
+      "unit": "명",
+      "label": "초기 신입 인원"
+    },
+    "planned_qa_fraction": {
+      "value": 0.15,
+      "unit": "비율",
+      "label": "계획 QA 비율"
+    },
+    "plan_dev_prod": {
+      "value": 0.6,
+      "unit": "태스크/맨데이",
+      "label": "계획 개발 생산성"
+    },
+    "plan_test_prod": {
+      "value": 3,
+      "unit": "태스크/맨데이",
+      "label": "계획 시험 생산성"
+    },
+    "estimate_margin": {
+      "value": 1.0,
+      "unit": "배",
+      "label": "추정 여유 계수"
+    },
+    "hiring_delay": {
+      "value": 40,
+      "unit": "일",
+      "label": "채용 지연"
+    },
+    "assim_delay": {
+      "value": 80,
+      "unit": "일",
+      "label": "동화 기간"
+    },
+    "avg_employment_time": {
+      "value": 673,
+      "unit": "일",
+      "label": "평균 재직 기간"
+    },
+    "transfer_delay": {
+      "value": 10,
+      "unit": "일",
+      "label": "전출 지연"
+    },
+    "trainers_per_hiree": {
+      "value": 0.25,
+      "unit": "FTE/신입",
+      "label": "신입당 훈련 인력"
+    },
+    "max_hirees_per_fte": {
+      "value": 3,
+      "unit": "명/명",
+      "label": "숙련자당 신입 한도"
+    },
+    "pro_prod": {
+      "value": 1.0,
+      "unit": "태스크/맨데이",
+      "label": "숙련자 생산성"
+    },
+    "new_prod": {
+      "value": 0.5,
+      "unit": "태스크/맨데이",
+      "label": "신입 생산성"
+    },
+    "frac_nominal": {
+      "value": 0.6,
+      "unit": "비율",
+      "label": "기본 업무 비율"
+    },
+    "max_boost": {
+      "value": 0.7,
+      "unit": "비율",
+      "label": "최대 과로 증가율"
+    },
+    "max_slack": {
+      "value": 0.2,
+      "unit": "비율",
+      "label": "최대 여유 감소율"
+    },
+    "work_rate_adj_time": {
+      "value": 10,
+      "unit": "일",
+      "label": "업무 비율 조정 시간"
+    },
+    "exh_max_tolerable": {
+      "value": 50,
+      "unit": "소진일",
+      "label": "최대 허용 소진"
+    },
+    "exh_depletion_delay": {
+      "value": 20,
+      "unit": "일",
+      "label": "소진 회복 지연"
+    },
+    "comm_coeff": {
+      "value": 0.0006,
+      "unit": "1/명²",
+      "label": "의사소통 오버헤드 계수"
+    },
+    "qa_delay": {
+      "value": 10,
+      "unit": "일",
+      "label": "QA 지연"
+    },
+    "qa_mp_per_error": {
+      "value": 0.3,
+      "unit": "맨데이/오류",
+      "label": "QA 오류당 노력"
+    },
+    "rework_mp_per_error": {
+      "value": 0.5,
+      "unit": "맨데이/오류",
+      "label": "재작업 오류당 노력"
+    },
+    "rework_correction_time": {
+      "value": 10,
+      "unit": "일",
+      "label": "재작업 목표 기간"
+    },
+    "rework_perception_delay": {
+      "value": 10,
+      "unit": "일",
+      "label": "재작업 인식 지연"
+    },
+    "bad_fix_fraction": {
+      "value": 0.075,
+      "unit": "비율",
+      "label": "불량 수정 비율"
+    },
+    "err_per_task_start": {
+      "value": 1.5,
+      "unit": "오류/태스크",
+      "label": "시작 태스크당 오류"
+    },
+    "err_per_task_end": {
+      "value": 0.75,
+      "unit": "오류/태스크",
+      "label": "종료 태스크당 오류"
+    },
+    "test_plan_md_per_task": {
+      "value": 0.12,
+      "unit": "맨데이/태스크",
+      "label": "시험 계획 노력"
+    },
+    "test_md_per_error": {
+      "value": 0.15,
+      "unit": "맨데이/오류",
+      "label": "시험 오류당 노력"
+    },
+    "delay_incorporating": {
+      "value": 10,
+      "unit": "일",
+      "label": "발견 태스크 반영 지연"
+    },
+    "sched_adj_time": {
+      "value": 60,
+      "unit": "일",
+      "label": "일정 조정 시간"
+    },
+    "prod_calibration": {
+      "value": 1,
+      "unit": "배",
+      "label": "생산성 보정 계수 (재예측용)"
+    },
+    "extra_people": {
+      "value": 0,
+      "unit": "명",
+      "label": "추가 투입 인원 (인력 보강 조치)"
+    },
+    "extra_people_day": {
+      "value": 0,
+      "unit": "일",
+      "label": "추가 투입 시점"
+    },
+    "ai_adoption": {
+      "value": 0,
+      "unit": "비율",
+      "label": "AI 적용 비율"
+    },
+    "ai_gen_pro": {
+      "value": 1,
+      "unit": "배",
+      "label": "생성 가속(숙련자)"
+    },
+    "ai_gen_new": {
+      "value": 1,
+      "unit": "배",
+      "label": "생성 가속(신입)"
+    },
+    "ai_iter_overhead": {
+      "value": 0,
+      "unit": "비율",
+      "label": "반복·재시도 오버헤드"
+    },
+    "ai_review_md_nominal": {
+      "value": 0,
+      "unit": "맨데이/태스크",
+      "label": "AI 태스크당 검토 노력(꼼꼼히 볼 때)"
+    },
+    "ai_review_cap_fraction": {
+      "value": 0.3,
+      "unit": "비율",
+      "label": "숙련자 시간 중 검토에 쓸 수 있는 몫"
+    },
+    "ai_review_perception_delay": {
+      "value": 10,
+      "unit": "일",
+      "label": "검토 부하 인식 지연"
+    },
+    "ai_verify_skill": {
+      "value": 3,
+      "unit": "태스크/맨데이",
+      "label": "검증 숙련도(검토 1맨데이당 오류 포착)"
+    },
+    "ai_miss_floor": {
+      "value": 0.1,
+      "unit": "비율",
+      "label": "검토로도 못 잡는 오류 비율(하한)"
+    },
+    "ai_err_raw_mult": {
+      "value": 1,
+      "unit": "배",
+      "label": "검토 전 AI 오류 밀도(수작업 대비)"
+    },
+    "ai_scale_ref": {
+      "value": 400,
+      "unit": "태스크",
+      "label": "검출 효율이 떨어지기 시작하는 기준 규모"
+    },
+    "ai_scale_exponent": {
+      "value": 0,
+      "unit": "비율",
+      "label": "규모 의존 검출 효율 지수"
+    },
+    "ai_late_rework_mult": {
+      "value": 1,
+      "unit": "배",
+      "label": "후기(시험) 발견 오류의 처리 노력 배수"
+    },
+    "td_base_size": {
+      "value": 0,
+      "unit": "태스크",
+      "label": "기존 시스템 규모(기존 코드베이스)"
+    },
+    "td_initial_ratio": {
+      "value": 0,
+      "unit": "비율",
+      "label": "기존 시스템의 초기 부채 비율"
+    },
+    "td_per_task": {
+      "value": 0,
+      "unit": "비율",
+      "label": "새 태스크당 기술 부채 발생(태스크 환산)"
+    },
+    "td_compound": {
+      "value": 0,
+      "unit": "비율",
+      "label": "부채가 부채를 낳는 정도"
+    },
+    "ai_td_pro": {
+      "value": 1,
+      "unit": "배",
+      "label": "AI로 인한 부채 발생 배수(숙련자)"
+    },
+    "ai_td_new": {
+      "value": 1,
+      "unit": "배",
+      "label": "AI로 인한 부채 발생 배수(신입)"
+    },
+    "td_refactor_fraction": {
+      "value": 0,
+      "unit": "비율",
+      "label": "리팩터링에 쓰는 개발 인력의 몫"
+    },
+    "td_refactor_prod": {
+      "value": 1,
+      "unit": "태스크/맨데이",
+      "label": "리팩터링 1맨데이당 상환하는 부채"
+    },
+    "td_obsolescence_time": {
+      "value": 3650,
+      "unit": "일",
+      "label": "부채가 낡아 사라지는 시간(서비스 노후화)"
+    },
+    "td_sensitivity": {
+      "value": 1,
+      "unit": "배",
+      "label": "부채 영향 곡선의 민감도"
+    },
+    "ai_gen_perceived": {
+      "value": 1,
+      "unit": "배",
+      "label": "계획이 믿는 생성 가속"
+    },
+    "cost_md_rate": {
+      "value": 0,
+      "unit": "만원/맨데이",
+      "label": "맨데이 단가(사람 1명 1일의 비용)"
+    },
+    "cost_token_per_task": {
+      "value": 0,
+      "unit": "만원/태스크",
+      "label": "AI 생성 태스크당 토큰 비용(한 번 생성할 때)"
+    },
+    "cost_seat_per_day": {
+      "value": 0,
+      "unit": "만원/명/일",
+      "label": "AI 도구 이용료(1인 1일)"
+    },
+    "cost_infra_per_day": {
+      "value": 0,
+      "unit": "만원/일",
+      "label": "AI 인프라 고정비(1일)"
+    }
+  },
+  "levels": {
+    "hr_new": {
+      "init": "initial_new",
+      "inflows": [
+        "hr_hiring_rate",
+        "hr_extra_rate"
+      ],
+      "outflows": [
+        "hr_assim_rate"
+      ],
+      "unit": "명"
+    },
+    "hr_pros": {
+      "init": "initial_pros",
+      "inflows": [
+        "hr_assim_rate"
+      ],
+      "outflows": [
+        "hr_quit_rate",
+        "hr_transfer_rate"
+      ],
+      "unit": "명"
+    },
+    "plan_sched_completion": {
+      "init": "planned_duration_days",
+      "inflows": [
+        "plan_sched_adj_rate"
+      ],
+      "outflows": [],
+      "unit": "일"
+    },
+    "exh_level": {
+      "init": "0",
+      "inflows": [
+        "exh_flow"
+      ],
+      "outflows": [
+        "exh_depletion"
+      ],
+      "unit": "소진일"
+    },
+    "prod_tasks_developed": {
+      "init": "0",
+      "inflows": [
+        "prod_dev_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "prod_qa_s1": {
+      "init": "0",
+      "inflows": [
+        "prod_dev_rate"
+      ],
+      "outflows": [
+        "prod_qa_flow1"
+      ],
+      "unit": "태스크"
+    },
+    "prod_qa_s2": {
+      "init": "0",
+      "inflows": [
+        "prod_qa_flow1"
+      ],
+      "outflows": [
+        "prod_qa_flow2"
+      ],
+      "unit": "태스크"
+    },
+    "prod_qa_s3": {
+      "init": "0",
+      "inflows": [
+        "prod_qa_flow2"
+      ],
+      "outflows": [
+        "prod_qa_rate"
+      ],
+      "unit": "태스크"
+    },
+    "prod_tasks_qaed": {
+      "init": "0",
+      "inflows": [
+        "prod_qa_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "prod_tasks_tested": {
+      "init": "0",
+      "inflows": [
+        "prod_test_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "prod_cum_md_dev": {
+      "init": "0",
+      "inflows": [
+        "prod_mp_dev"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "prod_cum_md_test": {
+      "init": "0",
+      "inflows": [
+        "prod_mp_test"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "err_pde": {
+      "init": "0",
+      "inflows": [
+        "err_gen_rate"
+      ],
+      "outflows": [
+        "err_detect_rate",
+        "err_escape_rate"
+      ],
+      "unit": "오류"
+    },
+    "err_detected": {
+      "init": "0",
+      "inflows": [
+        "err_detect_rate"
+      ],
+      "outflows": [
+        "err_rework_rate"
+      ],
+      "unit": "오류"
+    },
+    "err_escaped": {
+      "init": "0",
+      "inflows": [
+        "err_escape_rate",
+        "err_bad_fix_rate"
+      ],
+      "outflows": [
+        "err_test_found_rate"
+      ],
+      "unit": "오류"
+    },
+    "err_cum_generated": {
+      "init": "0",
+      "inflows": [
+        "err_gen_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "err_cum_found_qa": {
+      "init": "0",
+      "inflows": [
+        "err_detect_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "err_cum_reworked": {
+      "init": "0",
+      "inflows": [
+        "err_rework_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "err_cum_bad_fixes": {
+      "init": "0",
+      "inflows": [
+        "err_bad_fix_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "err_cum_found_test": {
+      "init": "0",
+      "inflows": [
+        "err_test_found_rate"
+      ],
+      "outflows": [],
+      "unit": "오류"
+    },
+    "ctl_perceived_job_size": {
+      "init": "total_tasks * plan_known_fraction",
+      "inflows": [
+        "ctl_incorporate_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "ctl_undiscovered": {
+      "init": "total_tasks * (1 - plan_known_fraction)",
+      "inflows": [],
+      "outflows": [
+        "ctl_discover_rate"
+      ],
+      "unit": "태스크"
+    },
+    "ctl_discovered": {
+      "init": "0",
+      "inflows": [
+        "ctl_discover_rate"
+      ],
+      "outflows": [
+        "ctl_incorporate_rate"
+      ],
+      "unit": "태스크"
+    },
+    "ctl_job_size_md": {
+      "init": "ctl_initial_estimate_md",
+      "inflows": [
+        "ctl_job_size_adj_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "ctl_cum_md": {
+      "init": "0",
+      "inflows": [
+        "hr_total"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "ctl_completion_time": {
+      "init": "0",
+      "inflows": [
+        "ctl_completion_rate"
+      ],
+      "outflows": [],
+      "unit": "일"
+    },
+    "td_level": {
+      "init": "td_initial_ratio * td_base_size",
+      "inflows": [
+        "td_gen_rate"
+      ],
+      "outflows": [
+        "td_refactor_rate",
+        "td_obsolete_rate"
+      ],
+      "unit": "태스크"
+    },
+    "td_cum_generated": {
+      "init": "0",
+      "inflows": [
+        "td_gen_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "td_cum_refactored": {
+      "init": "0",
+      "inflows": [
+        "td_refactor_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "td_cum_obsolete": {
+      "init": "0",
+      "inflows": [
+        "td_obsolete_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "cost_labor_cum": {
+      "init": "0",
+      "inflows": [
+        "cost_labor_rate"
+      ],
+      "outflows": [],
+      "unit": "만원"
+    },
+    "cost_review_cum": {
+      "init": "0",
+      "inflows": [
+        "cost_review_rate"
+      ],
+      "outflows": [],
+      "unit": "만원"
+    },
+    "cost_token_cum": {
+      "init": "0",
+      "inflows": [
+        "cost_token_rate"
+      ],
+      "outflows": [],
+      "unit": "만원"
+    },
+    "cost_infra_cum": {
+      "init": "0",
+      "inflows": [
+        "cost_infra_rate"
+      ],
+      "outflows": [],
+      "unit": "만원"
+    },
+    "cost_total_cum": {
+      "init": "0",
+      "inflows": [
+        "cost_total_rate"
+      ],
+      "outflows": [],
+      "unit": "만원"
+    }
+  },
+  "rates": {
+    "hr_extra_rate": {
+      "expr": "PULSE(extra_people / DT, extra_people_day, DT)",
+      "unit": "명/일"
+    },
+    "hr_hiring_rate": {
+      "expr": "MAX(0, MIN(hr_wf_gap, hr_hire_ceiling)) / hiring_delay",
+      "unit": "명/일"
+    },
+    "hr_assim_rate": {
+      "expr": "hr_new / assim_delay",
+      "unit": "명/일"
+    },
+    "hr_quit_rate": {
+      "expr": "hr_pros / avg_employment_time",
+      "unit": "명/일"
+    },
+    "hr_transfer_rate": {
+      "expr": "MIN(hr_pros / DT, MAX(0, -hr_wf_gap) / transfer_delay)",
+      "unit": "명/일"
+    },
+    "plan_sched_adj_rate": {
+      "expr": "(plan_indicated_completion - plan_sched_completion) / sched_adj_time",
+      "unit": "일/일"
+    },
+    "exh_depletion": {
+      "expr": "IF(prod_frac_manday <= frac_nominal * 1.001 OR exh_level >= exh_max_tolerable, exh_level / exh_depletion_delay, 0)",
+      "unit": "소진일/일"
+    },
+    "prod_dev_rate": {
+      "expr": "MIN(prod_mp_dev * prod_productivity, (total_tasks - prod_tasks_developed) / DT)",
+      "unit": "태스크/일"
+    },
+    "prod_qa_flow1": {
+      "expr": "prod_qa_s1 * 3 / qa_delay",
+      "unit": "태스크/일"
+    },
+    "prod_qa_flow2": {
+      "expr": "prod_qa_s2 * 3 / qa_delay",
+      "unit": "태스크/일"
+    },
+    "prod_qa_rate": {
+      "expr": "prod_qa_s3 * 3 / qa_delay",
+      "unit": "태스크/일"
+    },
+    "prod_test_rate": {
+      "expr": "MIN(prod_mp_test / MAX(prod_test_mp_per_task, 0.001), (prod_tasks_qaed - prod_tasks_tested) / DT)",
+      "unit": "태스크/일"
+    },
+    "err_gen_rate": {
+      "expr": "prod_dev_rate * err_per_task_nominal * err_mix_mult * err_pressure_mult * ai_err_factor * td_err_mult",
+      "unit": "오류/일"
+    },
+    "err_detect_rate": {
+      "expr": "MIN(err_potential_detect * ai_scale_detect_mult, err_pde / DT)",
+      "unit": "오류/일"
+    },
+    "err_escape_rate": {
+      "expr": "MAX(0, MIN(prod_qa_rate * err_avg_per_task - err_detect_rate, err_pde / DT - err_detect_rate))",
+      "unit": "오류/일"
+    },
+    "err_rework_rate": {
+      "expr": "MIN(prod_mp_rework / prod_rework_mp_actual, err_detected / DT)",
+      "unit": "오류/일"
+    },
+    "err_bad_fix_rate": {
+      "expr": "err_rework_rate * bad_fix_fraction",
+      "unit": "오류/일"
+    },
+    "err_test_found_rate": {
+      "expr": "MIN(prod_test_rate * err_escaped_density, err_escaped / DT)",
+      "unit": "오류/일"
+    },
+    "ctl_discover_rate": {
+      "expr": "ctl_undiscovered * ctl_pct_discovered_per_day",
+      "unit": "태스크/일"
+    },
+    "ctl_incorporate_rate": {
+      "expr": "ctl_discovered / delay_incorporating",
+      "unit": "태스크/일"
+    },
+    "ctl_job_size_adj_rate": {
+      "expr": "ctl_incorporate_rate * ctl_md_per_task_plan",
+      "unit": "맨데이/일"
+    },
+    "ctl_completion_rate": {
+      "expr": "IF(prod_tasks_tested < total_tasks - 0.5, 1, 0)",
+      "unit": "일/일"
+    },
+    "td_gen_rate": {
+      "expr": "prod_dev_rate * td_per_task * (1 + ai_adoption * (ai_td_mix - 1)) * (1 + td_compound * td_ratio)",
+      "unit": "태스크/일"
+    },
+    "td_refactor_rate": {
+      "expr": "prod_mp_refactor * td_refactor_prod",
+      "unit": "태스크/일"
+    },
+    "td_obsolete_rate": {
+      "expr": "MIN(td_level / td_obsolescence_time, MAX(0, td_level / DT - td_refactor_rate))",
+      "unit": "태스크/일"
+    }
+  },
+  "auxiliaries": {
+    "hr_total": {
+      "expr": "hr_new + hr_pros",
+      "unit": "명"
+    },
+    "hr_wf_gap": {
+      "expr": "plan_wf_sought - hr_total",
+      "unit": "명"
+    },
+    "hr_hire_ceiling": {
+      "expr": "max_hirees_per_fte * hr_pros - hr_new",
+      "unit": "명"
+    },
+    "hr_train_mp": {
+      "expr": "hr_new * trainers_per_hiree",
+      "unit": "명"
+    },
+    "hr_avail_mp": {
+      "expr": "MAX(0, hr_total - hr_train_mp)",
+      "unit": "명"
+    },
+    "plan_max_tolerable": {
+      "expr": "planned_duration_days * max_tolerable_factor",
+      "unit": "일"
+    },
+    "plan_time_remaining": {
+      "expr": "MAX(plan_sched_completion - TIME, 1)",
+      "unit": "일"
+    },
+    "plan_time_perceived_rem": {
+      "expr": "ctl_md_still_needed / MAX(hr_total, 1)",
+      "unit": "일"
+    },
+    "plan_indicated_completion": {
+      "expr": "TIME + plan_time_perceived_rem",
+      "unit": "일"
+    },
+    "plan_wf_indicated": {
+      "expr": "ctl_md_still_needed / plan_time_remaining",
+      "unit": "명"
+    },
+    "plan_wcwf1": {
+      "expr": "GRAPH(plan_time_remaining / (hiring_delay + assim_delay), [0, 0.3, 0.6, 0.9, 1.2, 1.5, 3], [0, 0, 0.11, 0.39, 0.86, 1, 1])",
+      "unit": "비율"
+    },
+    "plan_wcwf2": {
+      "expr": "GRAPH(plan_sched_completion / plan_max_tolerable, [0.86, 0.9, 0.92, 0.94, 0.96, 0.98, 1], [0, 0.2, 0.34, 0.6, 0.7, 0.77, 0.8])",
+      "unit": "비율"
+    },
+    "plan_wcwf": {
+      "expr": "MAX(plan_wcwf1, plan_wcwf2)",
+      "unit": "비율"
+    },
+    "plan_wf_needed": {
+      "expr": "plan_wcwf * plan_wf_indicated + (1 - plan_wcwf) * hr_total",
+      "unit": "명"
+    },
+    "plan_wf_sought": {
+      "expr": "MIN(plan_wf_needed, max_staff)",
+      "unit": "명"
+    },
+    "prod_learning_mult": {
+      "expr": "GRAPH(ctl_pct_worked, [0, 0.25, 0.5, 0.75, 1], [1, 1.03, 1.12, 1.22, 1.25])",
+      "unit": "배"
+    },
+    "prod_potential": {
+      "expr": "(hr_pros * pro_prod + hr_new * new_prod) / MAX(hr_total, 1) * prod_learning_mult",
+      "unit": "태스크/맨데이"
+    },
+    "prod_comm_overhead": {
+      "expr": "MIN(0.9, comm_coeff * hr_total ^ 2)",
+      "unit": "비율"
+    },
+    "prod_loss_mult": {
+      "expr": "prod_frac_manday * (1 - prod_comm_overhead)",
+      "unit": "비율"
+    },
+    "prod_productivity": {
+      "expr": "prod_potential * prod_loss_mult * prod_calibration / ai_dev_time_mult * td_prod_mult",
+      "unit": "태스크/맨데이"
+    },
+    "prod_overwork_allowed": {
+      "expr": "GRAPH(exh_level / exh_max_tolerable, [0, 1], [1, 0])",
+      "unit": "비율"
+    },
+    "prod_boost_sought": {
+      "expr": "IF(ctl_sched_pressure >= 0, MIN(max_boost, ctl_sched_pressure) * prod_overwork_allowed, MAX(ctl_sched_pressure, -max_slack))",
+      "unit": "비율"
+    },
+    "prod_frac_target": {
+      "expr": "frac_nominal * (1 + prod_boost_sought)",
+      "unit": "비율"
+    },
+    "prod_frac_manday": {
+      "expr": "SMOOTH(prod_frac_target, work_rate_adj_time)",
+      "unit": "비율"
+    },
+    "exh_flow": {
+      "expr": "GRAPH((1 - prod_frac_manday) / MAX(1 - frac_nominal, 0.01), exh_flow_curve)",
+      "unit": "소진일/일"
+    },
+    "prod_qa_fraction": {
+      "expr": "planned_qa_fraction * GRAPH(ctl_sched_pressure, [0, 0.25, 0.5, 1], [1, 0.9, 0.7, 0.5])",
+      "unit": "비율"
+    },
+    "prod_mp_qa": {
+      "expr": "ai_avail_mp * prod_qa_fraction",
+      "unit": "맨데이/일"
+    },
+    "prod_rework_mp_actual": {
+      "expr": "rework_mp_per_error / MAX(prod_loss_mult, 0.05)",
+      "unit": "맨데이/오류"
+    },
+    "prod_rework_mp_perceived": {
+      "expr": "SMOOTH(prod_rework_mp_actual, rework_perception_delay)",
+      "unit": "맨데이/오류"
+    },
+    "prod_rework_desired_mp": {
+      "expr": "err_detected / rework_correction_time * prod_rework_mp_perceived",
+      "unit": "맨데이/일"
+    },
+    "prod_mp_rework": {
+      "expr": "MIN(MAX(0, ai_avail_mp - prod_mp_qa), prod_rework_desired_mp)",
+      "unit": "맨데이/일"
+    },
+    "prod_mp_remaining": {
+      "expr": "MAX(0, ai_avail_mp - prod_mp_qa - prod_mp_rework) - prod_mp_refactor",
+      "unit": "맨데이/일"
+    },
+    "prod_dev_done": {
+      "expr": "IF(prod_tasks_developed >= total_tasks - 0.001, 1, 0)",
+      "unit": "비율"
+    },
+    "prod_test_fraction": {
+      "expr": "IF(prod_dev_done = 1, 1, IF(prod_tasks_qaed - prod_tasks_tested < 1, 0, GRAPH(ctl_pct_dev_perceived, [0, 0.6, 0.8, 0.95, 1], [0, 0, 0.15, 0.5, 1])))",
+      "unit": "비율"
+    },
+    "prod_mp_test": {
+      "expr": "prod_mp_remaining * prod_test_fraction",
+      "unit": "맨데이/일"
+    },
+    "prod_mp_dev": {
+      "expr": "prod_mp_remaining - prod_mp_test",
+      "unit": "맨데이/일"
+    },
+    "err_escaped_density": {
+      "expr": "err_escaped / MAX(prod_tasks_qaed - prod_tasks_tested, 1)",
+      "unit": "오류/태스크"
+    },
+    "prod_test_mp_per_task": {
+      "expr": "(test_plan_md_per_task + err_escaped_density * test_md_per_error * ai_late_rework_mult) / MAX(prod_loss_mult, 0.05)",
+      "unit": "맨데이/태스크"
+    },
+    "err_per_task_nominal": {
+      "expr": "err_per_task_start + (err_per_task_end - err_per_task_start) * MIN(1, MAX(0, ctl_pct_worked))",
+      "unit": "오류/태스크"
+    },
+    "err_mix_mult": {
+      "expr": "(hr_pros + 2 * hr_new) / MAX(hr_total, 1)",
+      "unit": "배"
+    },
+    "err_pressure_mult": {
+      "expr": "GRAPH(ctl_sched_pressure, [0, 0.25, 0.5, 1, 2], [1, 1.1, 1.25, 1.6, 2.2])",
+      "unit": "배"
+    },
+    "err_waiting_tasks": {
+      "expr": "MAX(prod_tasks_developed - prod_tasks_qaed, 1)",
+      "unit": "태스크"
+    },
+    "err_avg_per_task": {
+      "expr": "err_pde / err_waiting_tasks",
+      "unit": "오류/태스크"
+    },
+    "err_density_mult": {
+      "expr": "GRAPH(err_avg_per_task, err_density_curve)",
+      "unit": "배"
+    },
+    "err_potential_detect": {
+      "expr": "prod_mp_qa / (qa_mp_per_error / MAX(prod_loss_mult, 0.05) * err_density_mult)",
+      "unit": "오류/일"
+    },
+    "ctl_pct_worked": {
+      "expr": "prod_tasks_developed / total_tasks",
+      "unit": "비율"
+    },
+    "ctl_pct_dev_perceived": {
+      "expr": "MIN(1, prod_tasks_developed / MAX(ctl_perceived_job_size, 1))",
+      "unit": "비율"
+    },
+    "ctl_pct_discovered_per_day": {
+      "expr": "GRAPH(ctl_pct_worked, ctl_discovery_curve)",
+      "unit": "1/일"
+    },
+    "ctl_initial_estimate_md": {
+      "expr": "estimate_margin * total_tasks * plan_known_fraction * (1 / plan_dev_prod_eff / (1 - planned_qa_fraction) + 1 / plan_test_prod)",
+      "unit": "맨데이"
+    },
+    "ctl_md_per_task_plan": {
+      "expr": "ctl_initial_estimate_md / MAX(total_tasks * plan_known_fraction, 1)",
+      "unit": "맨데이/태스크"
+    },
+    "ctl_tasks_perceived_rem": {
+      "expr": "MAX(0, ctl_perceived_job_size - prod_tasks_developed)",
+      "unit": "태스크"
+    },
+    "ctl_actual_dev_prod": {
+      "expr": "IF(prod_cum_md_dev > 20, prod_tasks_developed / prod_cum_md_dev, plan_dev_prod_eff)",
+      "unit": "태스크/맨데이"
+    },
+    "ctl_assumed_dev_prod": {
+      "expr": "(1 - ctl_pct_dev_perceived) * plan_dev_prod_eff + ctl_pct_dev_perceived * ctl_actual_dev_prod",
+      "unit": "태스크/맨데이"
+    },
+    "ctl_md_dev_needed": {
+      "expr": "ctl_tasks_perceived_rem / MAX(ctl_assumed_dev_prod, 0.05) / (1 - planned_qa_fraction)",
+      "unit": "맨데이"
+    },
+    "ctl_md_rework_needed": {
+      "expr": "err_detected * prod_rework_mp_perceived",
+      "unit": "맨데이"
+    },
+    "ctl_perceived_test_prod": {
+      "expr": "IF(prod_cum_md_test > 5, prod_tasks_tested / prod_cum_md_test, plan_test_prod)",
+      "unit": "태스크/맨데이"
+    },
+    "ctl_md_test_needed": {
+      "expr": "MAX(0, ctl_perceived_job_size - prod_tasks_tested) / MAX(ctl_perceived_test_prod, 0.05)",
+      "unit": "맨데이"
+    },
+    "ctl_md_still_needed": {
+      "expr": "ctl_md_dev_needed + ctl_md_rework_needed + ctl_md_test_needed",
+      "unit": "맨데이"
+    },
+    "ctl_md_remaining": {
+      "expr": "MAX(ctl_job_size_md - ctl_cum_md, 1)",
+      "unit": "맨데이"
+    },
+    "ctl_sched_pressure": {
+      "expr": "CLAMP((ctl_md_still_needed - ctl_md_remaining) / ctl_md_remaining, -0.5, 2)",
+      "unit": "비율"
+    },
+    "ai_gen_mix": {
+      "expr": "IF(hr_total > 0.001, (hr_pros * ai_gen_pro + hr_new * ai_gen_new) / hr_total, ai_gen_pro)",
+      "unit": "배"
+    },
+    "ai_dev_time_mult": {
+      "expr": "(1 - ai_adoption) + ai_adoption * (1 / ai_gen_mix + ai_iter_overhead)",
+      "unit": "배"
+    },
+    "ai_review_capacity": {
+      "expr": "hr_pros * ai_review_cap_fraction",
+      "unit": "맨데이/일"
+    },
+    "ai_review_demand_s": {
+      "expr": "SMOOTH(ai_review_demand, ai_review_perception_delay)",
+      "unit": "맨데이/일"
+    },
+    "ai_load_ratio": {
+      "expr": "ai_review_demand_s / MAX(ai_review_capacity, 0.01)",
+      "unit": "비율"
+    },
+    "ai_depth": {
+      "expr": "GRAPH(ai_load_ratio, [0, 0.8, 1, 1.5, 3], [1, 1, 0.8, 0.5, 0.25])",
+      "unit": "비율"
+    },
+    "ai_review_demand": {
+      "expr": "prod_dev_rate * ai_adoption * ai_review_md_nominal * ai_depth",
+      "unit": "맨데이/일"
+    },
+    "prod_mp_review": {
+      "expr": "MIN(ai_review_demand_s, ai_review_capacity)",
+      "unit": "맨데이/일"
+    },
+    "ai_avail_mp": {
+      "expr": "MAX(0, hr_avail_mp - prod_mp_review)",
+      "unit": "명"
+    },
+    "ai_review_miss": {
+      "expr": "ai_miss_floor + (1 - ai_miss_floor) * EXP(-ai_verify_skill * ai_review_md_nominal * ai_depth)",
+      "unit": "비율"
+    },
+    "ai_err_factor": {
+      "expr": "(1 - ai_adoption) + ai_adoption * ai_err_raw_mult * ai_review_miss",
+      "unit": "배"
+    },
+    "ai_scale_detect_mult": {
+      "expr": "MIN(1, (total_tasks / ai_scale_ref) ^ (-ai_scale_exponent))",
+      "unit": "배"
+    },
+    "td_initial": {
+      "expr": "td_initial_ratio * td_base_size",
+      "unit": "태스크"
+    },
+    "td_ratio": {
+      "expr": "td_level / MAX(prod_tasks_developed + td_base_size, 1)",
+      "unit": "비율"
+    },
+    "td_prod_mult": {
+      "expr": "GRAPH(td_ratio * td_sensitivity, [0, 0.1, 0.25, 0.5, 1], [1, 0.97, 0.88, 0.7, 0.45])",
+      "unit": "배"
+    },
+    "td_err_mult": {
+      "expr": "GRAPH(td_ratio * td_sensitivity, [0, 0.25, 0.5, 1], [1, 1.1, 1.3, 1.8])",
+      "unit": "배"
+    },
+    "ai_td_mix": {
+      "expr": "IF(hr_total > 0.001, (hr_pros * ai_td_pro + hr_new * ai_td_new) / hr_total, ai_td_pro)",
+      "unit": "배"
+    },
+    "prod_mp_refactor": {
+      "expr": "MIN(MAX(0, ai_avail_mp - prod_mp_qa - prod_mp_rework) * td_refactor_fraction, td_level / MAX(td_refactor_prod, 0.001) / DT)",
+      "unit": "맨데이/일"
+    },
+    "plan_ai_time_mult": {
+      "expr": "1 + ai_adoption * (1 / ai_gen_perceived - 1)",
+      "unit": "배"
+    },
+    "plan_dev_prod_eff": {
+      "expr": "plan_dev_prod / plan_ai_time_mult",
+      "unit": "태스크/맨데이"
+    },
+    "cost_labor_rate": {
+      "expr": "hr_total * cost_md_rate",
+      "unit": "만원/일"
+    },
+    "cost_review_rate": {
+      "expr": "prod_mp_review * cost_md_rate",
+      "unit": "만원/일"
+    },
+    "cost_token_rate": {
+      "expr": "prod_dev_rate * ai_adoption * cost_token_per_task * (1 + ai_iter_overhead)",
+      "unit": "만원/일"
+    },
+    "cost_infra_rate": {
+      "expr": "ai_adoption * (hr_total * cost_seat_per_day + cost_infra_per_day)",
+      "unit": "만원/일"
+    },
+    "cost_total_rate": {
+      "expr": "cost_labor_rate + cost_token_rate + cost_infra_rate",
+      "unit": "만원/일"
+    }
+  },
+  "tables": {
+    "exh_flow_curve": {
+      "x": [
+        -0.5,
+        -0.1,
+        0,
+        0.1,
+        0.7,
+        1
+      ],
+      "y": [
+        2.5,
+        1.3,
+        1.15,
+        0.9,
+        0.31,
+        0
+      ],
+      "yUnit": "소진일/일"
+    },
+    "ctl_discovery_curve": {
+      "x": [
+        0,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "y": [
+        0,
+        0.005,
+        0.02,
+        0.05,
+        0.1
+      ],
+      "yUnit": "1/일"
+    },
+    "err_density_curve": {
+      "x": [
+        0,
+        0.25,
+        0.5,
+        1,
+        2
+      ],
+      "y": [
+        4,
+        2.5,
+        1.6,
+        1,
+        1
+      ],
+      "xUnit": "오류/태스크"
+    }
+  },
+  "outputs": [
+    "prod_tasks_developed",
+    "prod_tasks_tested",
+    "hr_total",
+    "hr_new",
+    "hr_pros",
+    "plan_sched_completion",
+    "ctl_perceived_job_size",
+    "ctl_cum_md",
+    "ctl_sched_pressure",
+    "prod_frac_manday",
+    "exh_level",
+    "err_escaped",
+    "cost_total_cum",
+    "cost_labor_cum",
+    "cost_review_cum",
+    "cost_token_cum",
+    "cost_infra_cum",
+    "cost_total_rate"
+  ],
+  "invariants": [
+    {
+      "name": "dev_tasks_conservation",
+      "label": "개발한 태스크 = QA 단계 3개 + QA 완료",
+      "lhs": [
+        {
+          "variable": "prod_tasks_developed"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "prod_qa_s1"
+        },
+        {
+          "variable": "prod_qa_s2"
+        },
+        {
+          "variable": "prod_qa_s3"
+        },
+        {
+          "variable": "prod_tasks_qaed"
+        }
+      ],
+      "tolerance": 1e-06
+    },
+    {
+      "name": "error_conservation",
+      "label": "발생 + 불량 수정 = 잠재 + 검출 + QA 통과 + 수정 완료 + 시험 발견",
+      "lhs": [
+        {
+          "variable": "err_cum_generated"
+        },
+        {
+          "variable": "err_cum_bad_fixes"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "err_pde"
+        },
+        {
+          "variable": "err_detected"
+        },
+        {
+          "variable": "err_escaped"
+        },
+        {
+          "variable": "err_cum_reworked"
+        },
+        {
+          "variable": "err_cum_found_test"
+        }
+      ],
+      "tolerance": 1e-05
+    },
+    {
+      "name": "qa_found_conservation",
+      "label": "QA 검출 누계 = 수정 대기 + 수정 완료",
+      "lhs": [
+        {
+          "variable": "err_cum_found_qa"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "err_detected"
+        },
+        {
+          "variable": "err_cum_reworked"
+        }
+      ],
+      "tolerance": 1e-05
+    },
+    {
+      "name": "job_size_conservation",
+      "label": "인식 + 미발견 + 반영 대기 = 총 태스크",
+      "lhs": [
+        {
+          "variable": "ctl_perceived_job_size"
+        },
+        {
+          "variable": "ctl_undiscovered"
+        },
+        {
+          "variable": "ctl_discovered"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "total_tasks"
+        }
+      ],
+      "tolerance": 1e-06
+    },
+    {
+      "name": "tech_debt_conservation",
+      "label": "기존 부채 + 발생 = 부채 + 상환 + 노후",
+      "lhs": [
+        {
+          "variable": "td_initial"
+        },
+        {
+          "variable": "td_cum_generated"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "td_level"
+        },
+        {
+          "variable": "td_cum_refactored"
+        },
+        {
+          "variable": "td_cum_obsolete"
+        }
+      ],
+      "tolerance": 1e-06
+    },
+    {
+      "name": "cost_conservation",
+      "label": "총 비용 = 인건비 + 토큰 + 인프라",
+      "lhs": [
+        {
+          "variable": "cost_total_cum"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "cost_labor_cum"
+        },
+        {
+          "variable": "cost_token_cum"
+        },
+        {
+          "variable": "cost_infra_cum"
+        }
+      ],
+      "tolerance": 1e-06
+    }
+  ]
+}

@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "id": "personnel-chain",
+    "name": "인력 체인(3단계)",
+    "version": 1,
+    "timeUnit": "day"
+  },
+  "time": {
+    "start": 0,
+    "end": 600,
+    "dt": 0.25
+  },
+  "constants": {
+    "job_size": {
+      "value": 5000,
+      "unit": "태스크",
+      "label": "작업 규모"
+    },
+    "initial_entry": {
+      "value": 6,
+      "unit": "명",
+      "label": "초기 신입 인원"
+    },
+    "initial_associate": {
+      "value": 6,
+      "unit": "명",
+      "label": "초기 일반 인원"
+    },
+    "initial_senior": {
+      "value": 6,
+      "unit": "명",
+      "label": "초기 선임 인원"
+    },
+    "recruiting_per_day": {
+      "value": 0.1,
+      "unit": "명/일",
+      "label": "신규 채용률"
+    },
+    "entry_period": {
+      "value": 120,
+      "unit": "일",
+      "label": "신입 → 일반 평균 기간"
+    },
+    "associate_period": {
+      "value": 365,
+      "unit": "일",
+      "label": "일반 → 선임 평균 기간"
+    },
+    "senior_tenure": {
+      "value": 1000,
+      "unit": "일",
+      "label": "선임의 평균 재직 기간(이후 이직)"
+    },
+    "entry_productivity": {
+      "value": 0.6,
+      "unit": "배",
+      "label": "신입 생산성 배율"
+    },
+    "associate_productivity": {
+      "value": 1,
+      "unit": "배",
+      "label": "일반 생산성 배율"
+    },
+    "senior_productivity": {
+      "value": 1.3,
+      "unit": "배",
+      "label": "선임 생산성 배율"
+    },
+    "nominal_productivity": {
+      "value": 0.5,
+      "unit": "태스크/맨데이",
+      "label": "공칭 생산성"
+    }
+  },
+  "levels": {
+    "entry_staff": {
+      "init": "initial_entry",
+      "inflows": [
+        "recruiting_rate"
+      ],
+      "outflows": [
+        "entry_promotion_rate"
+      ],
+      "unit": "명"
+    },
+    "associate_staff": {
+      "init": "initial_associate",
+      "inflows": [
+        "entry_promotion_rate"
+      ],
+      "outflows": [
+        "associate_promotion_rate"
+      ],
+      "unit": "명"
+    },
+    "senior_staff": {
+      "init": "initial_senior",
+      "inflows": [
+        "associate_promotion_rate"
+      ],
+      "outflows": [
+        "attrition_rate"
+      ],
+      "unit": "명"
+    },
+    "cum_recruited": {
+      "init": "0",
+      "inflows": [
+        "recruiting_rate"
+      ],
+      "outflows": [],
+      "unit": "명"
+    },
+    "cum_attrition": {
+      "init": "0",
+      "inflows": [
+        "attrition_rate"
+      ],
+      "outflows": [],
+      "unit": "명"
+    },
+    "tasks_remaining": {
+      "init": "job_size",
+      "inflows": [],
+      "outflows": [
+        "development_rate"
+      ],
+      "unit": "태스크"
+    },
+    "tasks_completed": {
+      "init": "0",
+      "inflows": [
+        "development_rate"
+      ],
+      "outflows": [],
+      "unit": "태스크"
+    },
+    "cum_effort": {
+      "init": "0",
+      "inflows": [
+        "effort_rate"
+      ],
+      "outflows": [],
+      "unit": "맨데이"
+    },
+    "completion_time": {
+      "init": "0",
+      "inflows": [
+        "completion_clock"
+      ],
+      "outflows": [],
+      "unit": "일"
+    }
+  },
+  "rates": {
+    "recruiting_rate": {
+      "expr": "recruiting_per_day * working",
+      "unit": "명/일"
+    },
+    "entry_promotion_rate": {
+      "expr": "entry_staff / entry_period",
+      "unit": "명/일"
+    },
+    "associate_promotion_rate": {
+      "expr": "associate_staff / associate_period",
+      "unit": "명/일"
+    },
+    "attrition_rate": {
+      "expr": "senior_staff / senior_tenure",
+      "unit": "명/일"
+    },
+    "development_rate": {
+      "expr": "MIN(potential_rate, tasks_remaining / DT)",
+      "unit": "태스크/일"
+    },
+    "effort_rate": {
+      "expr": "total_staff * working",
+      "unit": "맨데이/일"
+    },
+    "completion_clock": {
+      "expr": "IF(tasks_remaining > 0, MIN(1, tasks_remaining / (potential_rate * DT)), 0)",
+      "unit": "일/일"
+    }
+  },
+  "auxiliaries": {
+    "working": {
+      "expr": "IF(tasks_remaining > 0, 1, 0)",
+      "unit": "0/1"
+    },
+    "total_staff": {
+      "expr": "entry_staff + associate_staff + senior_staff",
+      "unit": "명"
+    },
+    "effective_staff": {
+      "expr": "entry_staff * entry_productivity + associate_staff * associate_productivity + senior_staff * senior_productivity",
+      "unit": "명(생산성 환산)"
+    },
+    "potential_rate": {
+      "expr": "nominal_productivity * effective_staff",
+      "unit": "태스크/일"
+    }
+  },
+  "tables": {},
+  "outputs": [
+    "total_staff",
+    "entry_staff",
+    "associate_staff",
+    "senior_staff",
+    "tasks_completed",
+    "completion_time"
+  ],
+  "invariants": [
+    {
+      "name": "task_conservation",
+      "label": "남은 일 + 끝난 일 = 작업 규모",
+      "lhs": [
+        {
+          "variable": "tasks_remaining"
+        },
+        {
+          "variable": "tasks_completed"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "job_size"
+        }
+      ],
+      "tolerance": 1e-06
+    },
+    {
+      "name": "staff_conservation",
+      "label": "세 단계 인원 합 = 초기 인원 + 누적 채용 − 누적 이직(승진은 단계 사이 이동일 뿐)",
+      "lhs": [
+        {
+          "variable": "entry_staff"
+        },
+        {
+          "variable": "associate_staff"
+        },
+        {
+          "variable": "senior_staff"
+        }
+      ],
+      "rhs": [
+        {
+          "variable": "initial_entry"
+        },
+        {
+          "variable": "initial_associate"
+        },
+        {
+          "variable": "initial_senior"
+        },
+        {
+          "variable": "cum_recruited"
+        },
+        {
+          "variable": "cum_attrition",
+          "coef": -1
+        }
+      ],
+      "tolerance": 1e-06
+    }
+  ]
+}
